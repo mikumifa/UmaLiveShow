@@ -1,5 +1,12 @@
-import { useState, useMemo } from "react";
-import { Music, Check, Settings2, ListMusic } from "lucide-react";
+import React, { useState, useMemo } from "react";
+import {
+  ShoppingCart,
+  Music,
+  Check,
+  Settings2,
+  ListMusic,
+  Clock,
+} from "lucide-react";
 
 // --- 配置与数据 ---
 
@@ -328,7 +335,7 @@ export default function App() {
   }, [activeCategory]);
 
   const NoteConsole = () => (
-    <div className="flex flex-col gap-1.5 pb-24 md:pb-0">
+    <div className="flex flex-col gap-1.5 h-full">
       {NOTE_TYPES.map((type) => {
         const current = stats[type.key];
         const needed = totalPlannedCost[type.key];
@@ -338,41 +345,48 @@ export default function App() {
         return (
           <div
             key={type.key}
-            className="bg-white rounded-lg border border-slate-200 p-2 flex flex-col gap-1.5 shadow-sm hover:border-slate-300 transition-all shrink-0"
+            className="bg-white rounded-xl border border-slate-200 p-2 flex flex-col gap-1.5 shadow-sm hover:border-slate-300 transition-all shrink-0"
           >
-            <div className="flex items-center justify-between px-1 text-[10px] font-black uppercase">
-              <span className={`${type.text} flex items-center gap-1`}>
-                <div className={`w-1.5 h-1.5 rounded-full ${type.color}`} />{" "}
+            {/* 顶层行：标签、输入、总量、差值 */}
+            <div className="flex items-center gap-2 px-1">
+              <div className={`w-2 h-2 rounded-full ${type.color} shrink-0`} />
+              <span
+                className={`text-xs md:text-sm font-black uppercase ${type.text} min-w-[24px]`}
+              >
                 {type.label}
               </span>
+
+              <div className="flex-1 flex items-center gap-1.5 bg-slate-50 px-2 py-0.5 rounded-lg border border-slate-100">
+                <input
+                  type="number"
+                  inputMode="numeric"
+                  value={current || ""}
+                  placeholder="0"
+                  onChange={(e) => updateStat(type.key, e.target.value)}
+                  className="w-full bg-transparent border-none p-0 text-sm md:text-base font-black text-center focus:ring-0 outline-none"
+                />
+                <span className="text-[10px] md:text-xs font-bold text-slate-300">
+                  /{needed}
+                </span>
+              </div>
+
               <span
-                className={`tabular-nums ${isMissing ? "text-rose-500" : "text-emerald-500"}`}
+                className={`text-[11px] md:text-sm font-black tabular-nums min-w-[34px] text-right ${isMissing ? "text-rose-500" : "text-emerald-500"}`}
               >
                 {isMissing ? diff : `+${diff}`}
               </span>
             </div>
-            <div className="flex items-center gap-1.5">
-              <input
-                type="number"
-                inputMode="numeric"
-                value={current || ""}
-                placeholder="0"
-                onChange={(e) => updateStat(type.key, e.target.value)}
-                className="w-full h-7 bg-slate-100 border-none rounded text-xs font-black text-center focus:ring-1 focus:ring-purple-500 outline-none"
-              />
-              <span className="text-[10px] font-bold text-slate-300 whitespace-nowrap">
-                / {needed}
-              </span>
-            </div>
-            <div className="grid grid-cols-3 gap-1">
+
+            {/* 按钮层：单行 6 个按钮 */}
+            <div className="flex gap-1">
               {[-10, -5, -1, 1, 5, 10].map((v) => (
                 <button
                   key={v}
                   onClick={() => adjustStat(type.key, v)}
-                  className={`h-5 rounded text-[8px] font-black border flex items-center justify-center transition-all active:scale-90 ${
+                  className={`flex-1 h-6 md:h-7 rounded-md text-[9px] md:text-xs font-black border flex items-center justify-center transition-all active:scale-90 ${
                     v < 0
-                      ? "bg-rose-50 border-rose-100 text-rose-400"
-                      : "bg-emerald-50 border-emerald-100 text-emerald-500"
+                      ? "bg-rose-50 border-rose-100 text-rose-400 hover:bg-rose-100"
+                      : "bg-emerald-50 border-emerald-100 text-emerald-500 hover:bg-emerald-100"
                   }`}
                 >
                   {v > 0 ? `+${v}` : v}
@@ -424,12 +438,12 @@ export default function App() {
         </div>
       </header>
 
-      <div className="flex-1 flex flex-col md:flex-row gap-2 min-h-0 overflow-hidden relative">
-        {/* 左侧控制台 */}
+      <div className="flex-1 flex flex-col md:flex-row gap-3 min-h-0 overflow-hidden relative">
+        {/* 左侧控制台 - 极致压缩高度以适应所有屏幕 */}
         <aside
           className={`
           ${mobileTab === "settings" ? "flex" : "hidden"} 
-          md:flex md:w-[180px] shrink-0 flex-col gap-2 
+          md:flex md:w-[280px] shrink-0 flex-col gap-2 
           overflow-y-auto no-scrollbar max-h-full
         `}
         >
@@ -445,7 +459,6 @@ export default function App() {
         >
           <MobileStatusHeader />
 
-          {/* 年份选择导航 */}
           <div className="shrink-0 flex items-center gap-1 bg-slate-200/50 p-1 rounded-xl border border-slate-200">
             {Object.keys(CATEGORY_LABELS).map((cat) => (
               <button
@@ -462,7 +475,6 @@ export default function App() {
             ))}
           </div>
 
-          {/* 歌曲网格 */}
           <div className="flex-1 overflow-y-auto pr-1 custom-scrollbar pb-24 md:pb-0">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-2 pb-2">
               {sortedSongIds.map((id) => {
@@ -474,7 +486,7 @@ export default function App() {
                 return (
                   <div
                     key={id}
-                    className={`group relative flex flex-col p-2.5 rounded-xl border transition-all ${
+                    className={`group relative flex flex-col p-2.5 md:p-3.5 rounded-xl border transition-all ${
                       isPurchased
                         ? "bg-slate-50 border-emerald-400 opacity-70"
                         : isPlanned
@@ -482,10 +494,9 @@ export default function App() {
                           : "bg-white border-slate-200 shadow-sm"
                     }`}
                   >
-                    {/* 头部：名称 */}
                     <div className="flex items-center justify-between gap-2 mb-1">
                       <h3
-                        className={`text-xs font-black truncate flex-1 leading-none ${isPlanned ? "text-purple-700" : "text-slate-800"}`}
+                        className={`text-xs md:text-sm font-black truncate flex-1 leading-none ${isPlanned ? "text-purple-700" : "text-slate-800"}`}
                       >
                         {song.name}
                       </h3>
@@ -497,24 +508,21 @@ export default function App() {
                       )}
                     </div>
 
-                    {/* 主内容区：描述/奖励与操作按钮并排 */}
                     <div className="flex items-center justify-between gap-2 mb-2">
-                      {/* 左侧：描述与奖励 */}
                       <div className="flex flex-col gap-1 min-w-0 flex-1">
-                        <p className="text-[10px] text-slate-500 font-bold italic truncate">
+                        <p className="text-[10px] md:text-xs text-slate-500 font-bold italic truncate">
                           {song.description}
                         </p>
-                        <div className="text-[9px] text-emerald-700 font-black bg-emerald-50 border border-emerald-200 self-start px-1.5 py-0.5 rounded shadow-sm truncate max-w-full leading-none">
+                        <div className="text-[9px] md:text-[10px] text-emerald-700 font-black bg-emerald-50 border border-emerald-200 self-start px-1.5 py-0.5 rounded shadow-sm truncate max-w-full leading-none">
                           {song.liveBonus}
                         </div>
                       </div>
 
-                      {/* 右侧：按钮垂直堆叠 */}
                       <div className="flex flex-col gap-1 shrink-0">
                         <button
                           onClick={() => togglePlanned(id)}
                           disabled={isPurchased}
-                          className={`w-14 h-5 flex items-center justify-center rounded text-[8px] font-black transition-all border ${
+                          className={`w-14 md:w-16 h-5 md:h-6 flex items-center justify-center rounded text-[8px] md:text-[10px] font-black transition-all border ${
                             isPurchased
                               ? "bg-slate-50 text-slate-200 border-slate-100 cursor-not-allowed"
                               : isPlanned
@@ -526,7 +534,7 @@ export default function App() {
                         </button>
                         <button
                           onClick={() => togglePurchased(id)}
-                          className={`w-14 h-5 flex items-center justify-center rounded text-[8px] font-black transition-all border ${
+                          className={`w-14 md:w-16 h-5 md:h-6 flex items-center justify-center rounded text-[8px] md:text-[10px] font-black transition-all border ${
                             isPurchased
                               ? "bg-emerald-600 text-white border-emerald-600 shadow-sm"
                               : "bg-white text-slate-400 border-slate-200 hover:border-emerald-300 hover:text-emerald-600"
@@ -537,7 +545,6 @@ export default function App() {
                       </div>
                     </div>
 
-                    {/* 底部：音符消耗 */}
                     <div className="flex flex-wrap gap-1 border-t border-slate-50 pt-1.5">
                       {song.perfType.map((type, idx) => {
                         const config = NOTE_TYPES.find((p) => p.id === type);
@@ -547,12 +554,12 @@ export default function App() {
                             className={`flex items-center gap-0.5 px-1 rounded border border-slate-100 ${config.bg}`}
                           >
                             <span
-                              className={`text-[7px] font-black uppercase ${config.text}`}
+                              className={`text-[7px] md:text-[8px] font-black uppercase ${config.text}`}
                             >
                               {config.label}
                             </span>
                             <span
-                              className={`text-[8px] font-black ${config.text}`}
+                              className={`text-[8px] md:text-[9px] font-black ${config.text}`}
                             >
                               {song.perfValue[idx]}
                             </span>
