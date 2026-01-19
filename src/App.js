@@ -335,7 +335,7 @@ export default function App() {
   }, [activeCategory]);
 
   const NoteConsole = () => (
-    <div className="flex flex-col gap-1.5 h-full">
+    <div className="flex flex-col gap-1.5">
       {NOTE_TYPES.map((type) => {
         const current = stats[type.key];
         const needed = totalPlannedCost[type.key];
@@ -345,9 +345,9 @@ export default function App() {
         return (
           <div
             key={type.key}
-            className="bg-white rounded-xl border border-slate-200 p-2 flex flex-col gap-1.5 shadow-sm hover:border-slate-300 transition-all shrink-0"
+            className="bg-white rounded-xl border border-slate-200 p-2 flex flex-col gap-1.5 shadow-sm transition-all shrink-0"
           >
-            {/* 顶层行：标签、输入、总量、差值 */}
+            {/* 顶层行：标签、输入、总量、差值并排 */}
             <div className="flex items-center gap-2 px-1">
               <div className={`w-2 h-2 rounded-full ${type.color} shrink-0`} />
               <span
@@ -356,7 +356,7 @@ export default function App() {
                 {type.label}
               </span>
 
-              <div className="flex-1 flex items-center gap-1.5 bg-slate-50 px-2 py-0.5 rounded-lg border border-slate-100">
+              <div className="flex-1 flex items-center gap-1 bg-slate-50 px-2 py-0.5 rounded-lg border border-slate-100">
                 <input
                   type="number"
                   inputMode="numeric"
@@ -378,15 +378,15 @@ export default function App() {
             </div>
 
             {/* 按钮层：单行 6 个按钮 */}
-            <div className="flex gap-1">
+            <div className="flex gap-0.5 md:gap-1">
               {[-10, -5, -1, 1, 5, 10].map((v) => (
                 <button
                   key={v}
                   onClick={() => adjustStat(type.key, v)}
                   className={`flex-1 h-6 md:h-7 rounded-md text-[9px] md:text-xs font-black border flex items-center justify-center transition-all active:scale-90 ${
                     v < 0
-                      ? "bg-rose-50 border-rose-100 text-rose-400 hover:bg-rose-100"
-                      : "bg-emerald-50 border-emerald-100 text-emerald-500 hover:bg-emerald-100"
+                      ? "bg-rose-50 border-rose-100 text-rose-400"
+                      : "bg-emerald-50 border-emerald-100 text-emerald-500"
                   }`}
                 >
                   {v > 0 ? `+${v}` : v}
@@ -406,11 +406,11 @@ export default function App() {
         const isMissing = diff < 0;
         return (
           <div key={type.key} className="flex flex-col items-center">
-            <span className="text-[9px] font-bold text-slate-500 uppercase leading-none mb-1">
+            <span className="text-[9px] font-bold text-slate-500 uppercase mb-0.5">
               {type.label}
             </span>
             <span
-              className={`text-[11px] font-black tabular-nums leading-none ${isMissing ? "text-rose-400" : "text-emerald-400"}`}
+              className={`text-[11px] font-black tabular-nums ${isMissing ? "text-rose-400" : "text-emerald-400"}`}
             >
               {isMissing ? diff : `+${diff}`}
             </span>
@@ -421,12 +421,13 @@ export default function App() {
   );
 
   return (
-    <div className="h-screen bg-slate-50 text-slate-900 font-sans antialiased overflow-hidden flex flex-col p-2 gap-2">
+    <div className="h-screen bg-slate-50 text-slate-900 font-sans antialiased overflow-hidden flex flex-col p-2 gap-2 relative">
+      {/* 顶部简易栏 */}
       <header className="flex items-center justify-between shrink-0 bg-white px-3 py-1.5 rounded-xl border border-slate-200 shadow-sm">
         <div className="flex items-center gap-2 text-purple-600">
           <Music size={14} strokeWidth={3} />
         </div>
-        <div className="flex gap-4 text-[10px] font-black text-slate-400 uppercase tracking-tight">
+        <div className="flex gap-4 text-[10px] font-black text-slate-400 uppercase">
           <span className="flex items-center gap-1.5">
             <div className="w-1.5 h-1.5 rounded-full bg-purple-500" /> 规划:{" "}
             {plannedIds.size}
@@ -438,13 +439,13 @@ export default function App() {
         </div>
       </header>
 
-      <div className="flex-1 flex flex-col md:flex-row gap-3 min-h-0 overflow-hidden relative">
-        {/* 左侧控制台 - 极致压缩高度以适应所有屏幕 */}
+      <div className="flex-1 flex flex-col md:flex-row gap-3 min-h-0 overflow-hidden">
+        {/* 左侧控制台 */}
         <aside
           className={`
           ${mobileTab === "settings" ? "flex" : "hidden"} 
           md:flex md:w-[280px] shrink-0 flex-col gap-2 
-          overflow-y-auto no-scrollbar max-h-full
+          overflow-y-auto no-scrollbar pb-20 md:pb-0
         `}
         >
           <NoteConsole />
@@ -475,7 +476,7 @@ export default function App() {
             ))}
           </div>
 
-          <div className="flex-1 overflow-y-auto pr-1 custom-scrollbar pb-24 md:pb-0">
+          <div className="flex-1 overflow-y-auto pr-1 custom-scrollbar pb-20 md:pb-0">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-2 pb-2">
               {sortedSongIds.map((id) => {
                 const song = LIVE_SQUARE_MAP[id];
@@ -494,6 +495,7 @@ export default function App() {
                           : "bg-white border-slate-200 shadow-sm"
                     }`}
                   >
+                    {/* 名称 */}
                     <div className="flex items-center justify-between gap-2 mb-1">
                       <h3
                         className={`text-xs md:text-sm font-black truncate flex-1 leading-none ${isPlanned ? "text-purple-700" : "text-slate-800"}`}
@@ -508,6 +510,7 @@ export default function App() {
                       )}
                     </div>
 
+                    {/* 描述与操作 */}
                     <div className="flex items-center justify-between gap-2 mb-2">
                       <div className="flex flex-col gap-1 min-w-0 flex-1">
                         <p className="text-[10px] md:text-xs text-slate-500 font-bold italic truncate">
@@ -545,6 +548,7 @@ export default function App() {
                       </div>
                     </div>
 
+                    {/* 音符消耗 */}
                     <div className="flex flex-wrap gap-1 border-t border-slate-50 pt-1.5">
                       {song.perfType.map((type, idx) => {
                         const config = NOTE_TYPES.find((p) => p.id === type);
@@ -575,20 +579,21 @@ export default function App() {
         </main>
       </div>
 
-      <footer className="md:hidden shrink-0 bg-white border border-slate-200 rounded-2xl flex items-center justify-around p-1.5 shadow-xl mb-1">
+      {/* 固定在底部的移动端 Tab 导航 */}
+      <footer className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 flex items-center justify-around p-2 shadow-[0_-4px_10px_rgba(0,0,0,0.05)] z-50">
         <button
           onClick={() => setMobileTab("settings")}
           className={`flex-1 flex flex-col items-center py-1 transition-colors ${mobileTab === "settings" ? "text-purple-600 font-black" : "text-slate-400"}`}
         >
-          <Settings2 size={18} />
-          <span className="text-[9px] mt-0.5">属性设置</span>
+          <Settings2 size={20} />
+          <span className="text-[10px] mt-0.5">属性设置</span>
         </button>
         <button
           onClick={() => setMobileTab("songs")}
           className={`flex-1 flex flex-col items-center py-1 transition-colors ${mobileTab === "songs" ? "text-purple-600 font-black" : "text-slate-400"}`}
         >
-          <ListMusic size={18} />
-          <span className="text-[9px] mt-0.5">歌曲库</span>
+          <ListMusic size={20} />
+          <span className="text-[10px] mt-0.5">歌曲库</span>
         </button>
       </footer>
 
